@@ -1,0 +1,199 @@
+body {
+    position: relative;
+    background: #FAF9FC !important;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+    filter: blur(60px);
+    opacity: 0.55;
+    animation: float-blob 20s ease-in-out infinite;
+}
+
+body::before {
+    width: 500px;
+    height: 380px;
+    background: #CECBF6;
+    top: -120px;
+    left: -180px;
+}
+
+body::after {
+    width: 520px;
+    height: 380px;
+    background: #AFA9EC;
+    bottom: -150px;
+    right: -180px;
+    opacity: 0.4;
+    animation-delay: -10s;
+}
+
+.bg-blob {
+    position: fixed;
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+    filter: blur(70px);
+    opacity: 0.4;
+}
+
+.bg-blob.blob-1 {
+    width: 360px;
+    height: 260px;
+    background: #EEEDFE;
+    top: 12%;
+    right: 8%;
+    opacity: 0.8;
+    animation: float-blob 22s ease-in-out infinite -5s;
+}
+
+.bg-blob.blob-2 {
+    width: 420px;
+    height: 290px;
+    background: #EEEDFE;
+    bottom: 18%;
+    left: 6%;
+    opacity: 0.7;
+    animation: float-blob 25s ease-in-out infinite -15s;
+}
+
+.bg-blob.blob-3 {
+    width: 280px;
+    height: 280px;
+    background: #CECBF6;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.25;
+    animation: float-blob 18s ease-in-out infinite -8s;
+}
+
+@keyframes float-blob {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    33% {
+        transform: translate(30px, -20px) scale(1.05);
+    }
+    66% {
+        transform: translate(-20px, 25px) scale(0.95);
+    }
+}
+
+body.home-body::before,
+body.home-body::after,
+body.dashboard-body::before,
+body.dashboard-body::after,
+body.auth-body::before,
+body.auth-body::after {
+    display: block;
+}
+
+.navbar,
+.dashboard-container,
+.container,
+.auth-container,
+.hero,
+.preview-section,
+.features-section,
+.how-it-works,
+.cta-section,
+.footer,
+section {
+    position: relative;
+    z-index: 1;
+}
+
+.navbar {
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(83, 74, 183, 0.08) !important;
+}
+
+.dashboard-section,
+.stat-card,
+.feature-card,
+.auth-card,
+.app-preview {
+    background: rgba(255, 255, 255, 0.75) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(83, 74, 183, 0.1) !important;
+}
+
+.habit-card {
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.habit-card.completed {
+    background: rgba(225, 245, 238, 0.7) !important;
+}
+
+.footer {
+    background: rgba(241, 239, 232, 0.5) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.how-it-works {
+    background: rgba(241, 239, 232, 0.3) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.ai-generate-box {
+    background: rgba(238, 237, 254, 0.6) !important;
+    backdrop-filter: blur(10px);
+}
+
+.briefing-banner {
+    background: linear-gradient(135deg, rgba(238, 237, 254, 0.85) 0%, rgba(250, 238, 218, 0.7) 100%) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(83, 74, 183, 0.15) !important;
+}
+
+.ai-feedback-banner {
+    background: rgba(238, 237, 254, 0.75) !important;
+    backdrop-filter: blur(10px);
+}
+
+.chat-window {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body::before,
+    body::after,
+    .bg-blob {
+        animation: none !important;
+    }
+}
+
+@media (max-width: 768px) {
+    body::before {
+        width: 300px;
+        height: 240px;
+    }
+
+    body::after {
+        width: 320px;
+        height: 240px;
+    }
+
+    .bg-blob {
+        display: none;
+    }
+}

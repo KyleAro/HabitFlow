@@ -1,0 +1,291 @@
+.btn-small {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.schedule-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding-top: 8px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.field-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.optional {
+    color: var(--text-tertiary);
+    font-weight: 400;
+    font-size: 12px;
+}
+
+.input-suffix {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    color: var(--text-tertiary);
+    pointer-events: none;
+}
+
+input[type="time"],
+input[type="number"] {
+    width: 100%;
+    padding: 10px 14px 10px 42px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    font-family: var(--font);
+    background: var(--white);
+    transition: all 0.2s;
+}
+
+input[type="time"]:focus,
+input[type="number"]:focus {
+    outline: none;
+    border-color: var(--purple-600);
+    box-shadow: 0 0 0 3px var(--purple-50);
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.category-option {
+    cursor: pointer;
+}
+
+.category-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.category-card {
+    padding: 12px 8px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--white);
+    text-align: center;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.category-card i {
+    font-size: 20px;
+}
+
+.category-card span {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.category-option input[type="radio"]:checked + .category-card {
+    border: 2px solid var(--purple-600);
+    background: var(--purple-50);
+}
+
+.category-option input[type="radio"]:checked + .category-card span {
+    color: var(--purple-800);
+    font-weight: 500;
+}
+
+.category-option:hover .category-card {
+    border-color: var(--text-tertiary);
+}
+
+.frequency-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.freq-btn {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--white);
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-family: var(--font);
+    transition: all 0.2s;
+}
+
+.freq-btn:hover {
+    border-color: var(--text-tertiary);
+}
+
+.freq-btn.active {
+    border: 2px solid var(--purple-600);
+    background: var(--purple-50);
+    color: var(--purple-800);
+    font-weight: 500;
+}
+
+.days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+
+.day-option {
+    cursor: pointer;
+}
+
+.day-option input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.day-card {
+    padding: 12px 6px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--white);
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-tertiary);
+    transition: all 0.2s;
+}
+
+.day-option input[type="checkbox"]:checked + .day-card {
+    border: 2px solid var(--purple-600);
+    background: var(--purple-50);
+    color: var(--purple-800);
+    font-weight: 500;
+}
+
+.day-option:hover .day-card {
+    border-color: var(--text-tertiary);
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+}
+
+.habit-card.not-today {
+    opacity: 0.65;
+    background: var(--gray-50);
+}
+
+.habit-card.not-today .habit-name {
+    color: var(--text-secondary);
+}
+
+.check-circle.disabled {
+    background: var(--gray-100);
+    border-color: var(--border);
+    cursor: not-allowed;
+}
+
+.check-circle.disabled i {
+    color: var(--text-tertiary);
+}
+
+.habit-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.category-icon {
+    font-size: 18px;
+}
+
+.habit-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+
+.meta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.meta-pill i {
+    font-size: 13px;
+}
+
+.meta-pill.streak {
+    background: var(--amber-50);
+    color: var(--amber-800);
+}
+
+.meta-pill.schedule {
+    background: var(--purple-50);
+    color: var(--purple-800);
+}
+
+.meta-pill.time {
+    background: var(--teal-50);
+    color: var(--teal-800);
+}
+
+.meta-pill.duration {
+    background: var(--gray-100);
+    color: var(--gray-800);
+}
+
+.meta-pill.done {
+    background: var(--teal-50);
+    color: var(--teal-800);
+    border: 1px solid rgba(29, 158, 117, 0.2);
+}
+
+.meta-pill.not-scheduled {
+    background: var(--gray-100);
+    color: var(--text-tertiary);
+}
+
+@media (max-width: 600px) {
+    .category-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .frequency-buttons {
+        flex-direction: column;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .days-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}

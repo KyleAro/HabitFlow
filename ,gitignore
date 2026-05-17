@@ -1,0 +1,10 @@
+# Never commit your API key
+config.php
+
+# Firebase / Node
+node_modules/
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
