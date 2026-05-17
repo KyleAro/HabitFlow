@@ -10,3 +10,4 @@ node_modules/
 Thumbs.db
 config.php
 qwen.php
+firebase-config.js
