@@ -3,8 +3,10 @@ config.php
 
 # Firebase / Node
 node_modules/
-.env
+
 
 # OS files
 .DS_Store
 Thumbs.db
+config.php
+qwen.php
