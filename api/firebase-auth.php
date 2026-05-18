@@ -29,23 +29,18 @@ if ($action === 'login' || $action === 'register') {
         exit;
     }
 
-    $_SESSION['user_id'] = $uid;
-    $_SESSION['email'] = $email;
-    $_SESSION['username'] = $username;
-    $_SESSION['logged_in'] = true;
-    $_SESSION['login_time'] = time();
+    AuthHandler::login($uid, $email, $username);
 
     echo json_encode([
         'success' => true,
         'message' => 'Session created successfully',
-        'redirect' => habitflow_url('public/dashboard.php')
+        'redirect' => habitflow_page('dashboard')
     ]);
     exit;
 }
 
 if ($action === 'logout') {
-    session_unset();
-    session_destroy();
+    AuthHandler::logout();
     echo json_encode(['success' => true, 'message' => 'Logged out']);
     exit;
 }

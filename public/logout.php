@@ -41,7 +41,7 @@ require_once __DIR__ . '/../includes/bootstrap.php';
                 console.warn('Session logout error:', error);
             }
 
-            window.location.href = '<?php echo habitflow_url('public/index.php'); ?>';
+            window.location.href = '<?php echo habitflow_page('index'); ?>';
         }
 
         function waitForFirebase() {

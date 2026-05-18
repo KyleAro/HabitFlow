@@ -4,7 +4,7 @@ require_once __DIR__ . '/../includes/bootstrap.php';
 habitflow_require('auth.php');
 
 if (AuthHandler::isLoggedIn()) {
-    header('Location: dashboard.php');
+    header('Location: ' . habitflow_page('dashboard'));
     exit;
 }
 ?>

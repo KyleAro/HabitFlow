@@ -66,7 +66,31 @@ function habitflow_url(string $path): string
 
 function habitflow_asset(string $path): string
 {
-    return habitflow_url('public/assets/' . ltrim($path, '/'));
+    $prefix = getenv('VERCEL') ? 'assets/' : 'public/assets/';
+    return habitflow_url($prefix . ltrim($path, '/'));
+}
+
+/** Clean URLs on Vercel; public/*.php paths locally (XAMPP). */
+function habitflow_page(string $page): string
+{
+    if (getenv('VERCEL')) {
+        $routes = [
+            'index'     => '/',
+            'login'     => '/login',
+            'dashboard' => '/dashboard',
+            'register'  => '/register',
+            'logout'    => '/logout',
+        ];
+        return $routes[$page] ?? '/' . $page;
+    }
+    $files = [
+        'index'     => 'public/index.php',
+        'login'     => 'public/login.php',
+        'dashboard' => 'public/dashboard.php',
+        'register'  => 'public/register.php',
+        'logout'    => 'public/logout.php',
+    ];
+    return habitflow_url($files[$page] ?? 'public/' . $page . '.php');
 }
 
 function habitflow_api(string $endpoint): string

@@ -4,7 +4,7 @@ require_once __DIR__ . '/../includes/bootstrap.php';
 habitflow_require('auth.php');
 
 if (AuthHandler::isLoggedIn()) {
-    header('Location: dashboard.php');
+    header('Location: ' . habitflow_page('dashboard'));
     exit;
 }
 ?>
@@ -164,7 +164,7 @@ if (AuthHandler::isLoggedIn()) {
                 if (data.success) {
                     showAlert('Login successful! Redirecting...', 'success');
                     setTimeout(() => {
-                        window.location.href = data.redirect || 'dashboard.php';
+                        window.location.href = data.redirect || '<?php echo habitflow_page('dashboard'); ?>';
                     }, 500);
                 } else {
                     showAlert(data.error || 'Login failed');

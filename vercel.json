@@ -9,6 +9,8 @@
   },
   "routes": [
     { "src": "/assets/(.*)", "dest": "/public/assets/$1" },
+    { "src": "/public/assets/(.*)", "dest": "/public/assets/$1" },
+    { "src": "/(dashboard|login|register|logout|index)\\.php", "dest": "/public/$1.php" },
     { "src": "/", "dest": "/public/index.php" },
     { "src": "/login", "dest": "/public/login.php" },
     { "src": "/logout", "dest": "/public/logout.php" },
