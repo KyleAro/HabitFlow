@@ -1,22 +1,19 @@
 {
   "functions": {
-    "api/*.php": {
-      "runtime": "vercel-php@0.9.0"
-    },
-    "public/*.php": {
+    "api/**/*.php": {
       "runtime": "vercel-php@0.9.0"
     }
   },
   "routes": [
     { "src": "/assets/(.*)", "dest": "/public/assets/$1" },
     { "src": "/public/assets/(.*)", "dest": "/public/assets/$1" },
-    { "src": "/(dashboard|login|register|logout|index)\\.php", "dest": "/public/$1.php" },
-    { "src": "/", "dest": "/public/index.php" },
-    { "src": "/login", "dest": "/public/login.php" },
-    { "src": "/logout", "dest": "/public/logout.php" },
-    { "src": "/dashboard", "dest": "/public/dashboard.php" },
-    { "src": "/register", "dest": "/public/register.php" },
-    { "src": "/test-ai", "dest": "/public/test-ai.php" },
+    { "src": "/(dashboard|login|register|logout|index)\\.php", "dest": "/api/site/$1.php" },
+    { "src": "/", "dest": "/api/site/index.php" },
+    { "src": "/login", "dest": "/api/site/login.php" },
+    { "src": "/logout", "dest": "/api/site/logout.php" },
+    { "src": "/dashboard", "dest": "/api/site/dashboard.php" },
+    { "src": "/register", "dest": "/api/site/register.php" },
+    { "src": "/test-ai", "dest": "/api/site/test-ai.php" },
     { "src": "/ai-api", "dest": "/api/ai-api.php" },
     { "src": "/firebase-auth", "dest": "/api/firebase-auth.php" },
     { "src": "/firebase-config", "dest": "/api/firebase-config.php" },

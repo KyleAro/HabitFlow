@@ -51,6 +51,8 @@ function habitflow_base_path(): string
     } elseif (basename($dir) === 'api' || str_ends_with($dir, '/api')) {
         $parent = dirname($dir);
         $base = ($parent === '/' || $parent === '.') ? '' : $parent;
+    } elseif (str_ends_with($dir, '/api/site') || basename($dir) === 'site') {
+        $base = '';
     } else {
         $base = $dir;
     }
