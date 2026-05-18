@@ -20,7 +20,7 @@ require_once __DIR__ . '/../includes/bootstrap.php';
         </div>
     </div>
 
-    <script type="module" src="<?php echo habitflow_asset('js/firebase-config.js'); ?>"></script>
+    <script type="module" src="<?php echo habitflow_api('firebase-config.php'); ?>"></script>
     <script type="module">
         async function logout() {
             try {

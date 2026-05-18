@@ -1,12 +1,31 @@
-const firebaseConfig = {
-    apiKey: "AIzaSyCy9fTdbqG4k34bBPHbxV2rxxWViP8ixTA",
-    authDomain: "habit-7e279.firebaseapp.com",
-    projectId: "habit-7e279",
-    storageBucket: "habit-7e279.firebasestorage.app",
-    messagingSenderId: "964989177103",
-    appId: "1:964989177103:web:c0f0cd3a569d7f5366427a",
-    measurementId: "G-CRJ9MY3B01"
+<?php
+/**
+ * Serves Firebase client config as an ES module (values from .env, never committed).
+ */
+require_once __DIR__ . '/../includes/bootstrap.php';
+habitflow_load_env();
+
+header('Content-Type: application/javascript; charset=utf-8');
+header('Cache-Control: no-store, no-cache, must-revalidate');
+
+$env = static function (string $key): string {
+    $v = getenv($key);
+    return ($v !== false && $v !== '') ? $v : '';
 };
+
+$config = [
+    'apiKey'            => $env('FIREBASE_API_KEY'),
+    'authDomain'        => $env('FIREBASE_AUTH_DOMAIN'),
+    'projectId'         => $env('FIREBASE_PROJECT_ID'),
+    'storageBucket'     => $env('FIREBASE_STORAGE_BUCKET'),
+    'messagingSenderId' => $env('FIREBASE_MESSAGING_SENDER_ID'),
+    'appId'             => $env('FIREBASE_APP_ID'),
+    'measurementId'     => $env('FIREBASE_MEASUREMENT_ID'),
+];
+
+$configJson = json_encode($config, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+?>
+const firebaseConfig = <?= $configJson ?>;
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
@@ -60,5 +79,3 @@ window.firestoreWhere = where;
 window.firestoreOrderBy = orderBy;
 window.firestoreServerTimestamp = serverTimestamp;
 window.firestoreTimestamp = Timestamp;
-
-console.log("Firebase + Firestore initialized");

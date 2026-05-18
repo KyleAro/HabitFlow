@@ -1,6 +1,7 @@
 # Secrets
 .env
 includes/config.local.php
+public/assets/js/firebase-config.js
 
 # Dependencies
 node_modules/

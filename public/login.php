@@ -79,7 +79,7 @@ if (AuthHandler::isLoggedIn()) {
         </div>
     </div>
 
-    <script type="module" src="<?php echo habitflow_asset('js/firebase-config.js'); ?>"></script>
+    <script type="module" src="<?php echo habitflow_api('firebase-config.php'); ?>"></script>
     <script type="module">
         const form = document.getElementById('loginForm');
         const alertBox = document.getElementById('alertBox');
