@@ -1,16 +1,26 @@
 <?php
 // Qwen AI Integration via Alibaba Cloud Model Studio (Singapore)
 // Get API key from: https://modelstudio.console.alibabacloud.com/
-// Free tier: 1 MILLION tokens per model!
+
+require_once __DIR__ . '/config.php';
 
 class QwenHandler {
 
-    private static $apiKey = 'sk-8fca9e351012451785c9b6de78ee38e2';
+    private static $apiKey = null;
     private static $apiUrl = 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions';
     private static $model = 'qwen-plus';
 
+    private static function getApiKey(): string
+    {
+        if (self::$apiKey === null) {
+            self::$apiKey = defined('QWEN_API_KEY') ? (string) QWEN_API_KEY : '';
+        }
+        return self::$apiKey;
+    }
+
     private static function hasValidKey() {
-        return !empty(self::$apiKey) && strpos(self::$apiKey, 'YOUR_') !== 0;
+        $key = self::getApiKey();
+        return $key !== '' && strpos($key, 'YOUR_') !== 0;
     }
 
     public static function setApiKey($key) {
@@ -163,7 +173,7 @@ class QwenHandler {
 
         curl_setopt_array($curl, [
             CURLOPT_HTTPHEADER => [
-                "Authorization: Bearer " . self::$apiKey,
+                "Authorization: Bearer " . self::getApiKey(),
                 "Content-Type: application/json"
             ],
             CURLOPT_POSTFIELDS => json_encode($data),

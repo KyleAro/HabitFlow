@@ -1,6 +1,7 @@
 <?php
 session_start();
-require_once 'auth.php';
+require_once __DIR__ . '/../includes/bootstrap.php';
+habitflow_require('auth.php');
 
 if (!AuthHandler::isLoggedIn()) {
     header('Location: index.php');
@@ -17,8 +18,8 @@ $username = AuthHandler::getUsername();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - HabitFlow</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-    <link rel="stylesheet" href="theme.css">
-    <script src="theme.js"></script>
+    <link rel="stylesheet" href="<?php echo habitflow_asset('css/theme.css'); ?>">
+    <script src="<?php echo habitflow_asset('js/theme.js'); ?>"></script>
 </head>
 <body class="dashboard-body">
 
@@ -306,8 +307,9 @@ $username = AuthHandler::getUsername();
         </div>
     </div>
 
-    <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="habits-db.js"></script>
+    <script type="module" src="<?php echo habitflow_asset('js/firebase-config.js'); ?>"></script>
+    <script type="module" src="<?php echo habitflow_asset('js/habits-db.js'); ?>"></script>
+    <script>window.HABITFLOW_API = '<?php echo habitflow_api(''); ?>';</script>
     <script type="module">
         const userId = <?php echo json_encode($userId); ?>;
         const username = <?php echo json_encode($username); ?>;
@@ -407,7 +409,7 @@ $username = AuthHandler::getUsername();
         async function loadDailyBriefing(habits) {
             try {
                 const habitSummary = habitsToSimpleList(habits.slice(0, 5));
-                const response = await fetch('ai-api.php', {
+                const response = await fetch(window.HABITFLOW_API + 'ai-api.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -438,7 +440,7 @@ $username = AuthHandler::getUsername();
 
         async function getAIMessage(habitName, streak) {
             try {
-                const response = await fetch('ai-api.php', {
+                const response = await fetch(window.HABITFLOW_API + 'ai-api.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'motivation', habitName, currentStreak: streak })
@@ -608,7 +610,7 @@ $username = AuthHandler::getUsername();
 
             try {
                 const existingHabits = cachedHabits.map(h => h.habitName);
-                const response = await fetch('ai-api.php', {
+                const response = await fetch(window.HABITFLOW_API + 'ai-api.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -831,7 +833,7 @@ $username = AuthHandler::getUsername();
             addTypingIndicator();
 
             try {
-                const response = await fetch('ai-api.php', {
+                const response = await fetch(window.HABITFLOW_API + 'ai-api.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

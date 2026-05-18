@@ -1,0 +1,14 @@
+# Secrets
+.env
+includes/config.local.php
+
+# Dependencies
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Firebase (if added later)
+firebase.json
+.firebaserc

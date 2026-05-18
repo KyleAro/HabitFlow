@@ -1,6 +1,7 @@
 <?php
 session_start();
-require_once 'auth.php';
+require_once __DIR__ . '/../includes/bootstrap.php';
+habitflow_require('auth.php');
 
 if (AuthHandler::isLoggedIn()) {
     header('Location: dashboard.php');
@@ -12,10 +13,10 @@ if (AuthHandler::isLoggedIn()) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - HabitFlow</title>
+    <title>Login - HabitFlow</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-    <link rel="stylesheet" href="theme.css">
-    <script src="theme.js"></script>
+    <link rel="stylesheet" href="<?php echo habitflow_asset('css/theme.css'); ?>">
+    <script src="<?php echo habitflow_asset('js/theme.js'); ?>"></script>
 </head>
 <body class="auth-body">
 
@@ -42,21 +43,13 @@ if (AuthHandler::isLoggedIn()) {
     <div class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
-                <h1>Create your account</h1>
-                <p>Start building better habits today</p>
+                <h1>Welcome back</h1>
+                <p>Log in to continue tracking your habits</p>
             </div>
 
             <div id="alertBox"></div>
 
-            <form id="registerForm" class="auth-form">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <div class="input-wrapper">
-                        <i class="ti ti-user input-icon"></i>
-                        <input type="text" id="username" name="username" placeholder="johndoe" required minlength="3">
-                    </div>
-                </div>
-
+            <form id="loginForm" class="auth-form">
                 <div class="form-group">
                     <label for="email">Email</label>
                     <div class="input-wrapper">
@@ -69,34 +62,26 @@ if (AuthHandler::isLoggedIn()) {
                     <label for="password">Password</label>
                     <div class="input-wrapper">
                         <i class="ti ti-lock input-icon"></i>
-                        <input type="password" id="password" name="password" placeholder="At least 6 characters" required minlength="6">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="password_confirm">Confirm Password</label>
-                    <div class="input-wrapper">
-                        <i class="ti ti-lock input-icon"></i>
-                        <input type="password" id="password_confirm" name="password_confirm" placeholder="Re-enter your password" required>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
                     </div>
                 </div>
 
                 <button type="submit" id="submitBtn" class="btn btn-primary btn-block">
-                    <span id="btnText">Create account</span>
+                    <span id="btnText">Log in</span>
                     <i class="ti ti-arrow-right" id="btnIcon"></i>
                 </button>
             </form>
 
             <div class="auth-footer">
-                Already have an account?
-                <a href="login.php">Log in</a>
+                Don't have an account?
+                <a href="register.php">Sign up free</a>
             </div>
         </div>
     </div>
 
-    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="<?php echo habitflow_asset('js/firebase-config.js'); ?>"></script>
     <script type="module">
-        const form = document.getElementById('registerForm');
+        const form = document.getElementById('loginForm');
         const alertBox = document.getElementById('alertBox');
         const submitBtn = document.getElementById('submitBtn');
         const btnText = document.getElementById('btnText');
@@ -114,7 +99,7 @@ if (AuthHandler::isLoggedIn()) {
 
         function setLoading(loading) {
             submitBtn.disabled = loading;
-            btnText.textContent = loading ? 'Creating account...' : 'Create account';
+            btnText.textContent = loading ? 'Logging in...' : 'Log in';
             btnIcon.className = loading ? 'ti ti-loader' : 'ti ti-arrow-right';
             if (loading) {
                 btnIcon.style.animation = 'spin 1s linear infinite';
@@ -142,28 +127,11 @@ if (AuthHandler::isLoggedIn()) {
             e.preventDefault();
             alertBox.innerHTML = '';
 
-            const username = document.getElementById('username').value.trim();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
-            const passwordConfirm = document.getElementById('password_confirm').value;
 
-            if (!username || !email || !password) {
+            if (!email || !password) {
                 showAlert('Please fill in all fields');
-                return;
-            }
-
-            if (username.length < 3) {
-                showAlert('Username must be at least 3 characters');
-                return;
-            }
-
-            if (password !== passwordConfirm) {
-                showAlert('Passwords do not match');
-                return;
-            }
-
-            if (password.length < 6) {
-                showAlert('Password must be at least 6 characters');
                 return;
             }
 
@@ -172,7 +140,7 @@ if (AuthHandler::isLoggedIn()) {
             try {
                 await waitForFirebase();
 
-                const userCredential = await window.firebaseCreateUser(
+                const userCredential = await window.firebaseSignIn(
                     window.firebaseAuth,
                     email,
                     password
@@ -180,58 +148,49 @@ if (AuthHandler::isLoggedIn()) {
 
                 const user = userCredential.user;
 
-                try {
-                    await window.firebaseUpdateProfile(user, {
-                        displayName: username
-                    });
-                } catch (profileError) {
-                    console.warn('Could not update profile:', profileError);
-                }
-
-                const response = await fetch('firebase-auth.php', {
+                const response = await fetch('<?php echo habitflow_api('firebase-auth.php'); ?>', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        action: 'register',
+                        action: 'login',
                         uid: user.uid,
                         email: user.email,
-                        username: username
+                        username: user.displayName || email.split('@')[0]
                     })
                 });
 
                 const data = await response.json();
 
                 if (data.success) {
-                    showAlert('Account created! Redirecting...', 'success');
+                    showAlert('Login successful! Redirecting...', 'success');
                     setTimeout(() => {
                         window.location.href = data.redirect || 'dashboard.php';
                     }, 500);
                 } else {
-                    showAlert(data.error || 'Registration failed');
+                    showAlert(data.error || 'Login failed');
                     setLoading(false);
                 }
             } catch (error) {
-                console.error('Registration error:', error);
-                let errorMessage = 'Registration failed';
+                console.error('Login error:', error);
+                let errorMessage = 'Login failed';
 
                 switch (error.code) {
-                    case 'auth/email-already-in-use':
-                        errorMessage = 'This email is already registered. Try logging in instead.';
-                        break;
                     case 'auth/invalid-email':
                         errorMessage = 'Invalid email address';
                         break;
-                    case 'auth/weak-password':
-                        errorMessage = 'Password is too weak (min 6 characters)';
+                    case 'auth/user-not-found':
+                    case 'auth/wrong-password':
+                    case 'auth/invalid-credential':
+                        errorMessage = 'Invalid email or password';
                         break;
-                    case 'auth/operation-not-allowed':
-                        errorMessage = 'Email/password sign up is not enabled. Enable it in Firebase Console.';
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Too many attempts. Try again later.';
                         break;
                     case 'auth/network-request-failed':
                         errorMessage = 'Network error. Check your connection.';
                         break;
                     default:
-                        errorMessage = error.message || 'Registration failed';
+                        errorMessage = error.message || 'Login failed';
                 }
 
                 showAlert(errorMessage);

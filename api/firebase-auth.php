@@ -1,6 +1,7 @@
 <?php
 session_start();
-require_once 'auth.php';
+require_once __DIR__ . '/../includes/bootstrap.php';
+habitflow_require('auth.php');
 
 header('Content-Type: application/json');
 
@@ -37,7 +38,7 @@ if ($action === 'login' || $action === 'register') {
     echo json_encode([
         'success' => true,
         'message' => 'Session created successfully',
-        'redirect' => 'dashboard.php'
+        'redirect' => habitflow_url('public/dashboard.php')
     ]);
     exit;
 }
@@ -59,4 +60,3 @@ if ($action === 'check') {
 }
 
 echo json_encode(['success' => false, 'error' => 'Unknown action']);
-?>

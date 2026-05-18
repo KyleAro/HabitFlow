@@ -1,6 +1,7 @@
 <?php
 // Test Alibaba Model Studio API connection
-require_once 'qwen.php';
+require_once __DIR__ . '/../includes/bootstrap.php';
+habitflow_require('qwen.php');
 
 echo "<h1>AI Connection Test (Alibaba Model Studio)</h1>";
 echo "<pre>";

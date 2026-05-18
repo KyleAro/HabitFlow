@@ -197,7 +197,8 @@ class HabitCoachChat {
                 ? this.habits.map(h => h.habitName || h.name).filter(Boolean)
                 : [];
 
-            const response = await fetch('qwen-chat.php', {
+            const apiBase = window.HABITFLOW_API || '../api/';
+            const response = await fetch(apiBase + 'qwen-chat.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message, habits: habitNames })

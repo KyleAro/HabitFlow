@@ -1,7 +1,8 @@
 <?php
 session_start();
-require_once 'auth.php';
-require_once 'config.php';
+require_once __DIR__ . '/../includes/bootstrap.php';
+habitflow_require('auth.php');
+habitflow_require('config.php');
 
 header('Content-Type: application/json');
 

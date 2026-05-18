@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../includes/bootstrap.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -7,7 +8,7 @@ session_start();
     <meta charset="UTF-8">
     <title>Logging out...</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="<?php echo habitflow_asset('css/style.css'); ?>">
 </head>
 <body class="auth-body">
 
@@ -19,7 +20,7 @@ session_start();
         </div>
     </div>
 
-    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="<?php echo habitflow_asset('js/firebase-config.js'); ?>"></script>
     <script type="module">
         async function logout() {
             try {
@@ -31,7 +32,7 @@ session_start();
             }
 
             try {
-                await fetch('firebase-auth.php', {
+                await fetch('<?php echo habitflow_api('firebase-auth.php'); ?>', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'logout' })
@@ -40,7 +41,7 @@ session_start();
                 console.warn('Session logout error:', error);
             }
 
-            window.location.href = 'index.php';
+            window.location.href = '<?php echo habitflow_url('public/index.php'); ?>';
         }
 
         function waitForFirebase() {

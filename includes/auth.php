@@ -22,7 +22,8 @@ class AuthHandler {
 
     public static function requireLogin() {
         if (!self::isLoggedIn()) {
-            header('Location: login.php');
+            require_once __DIR__ . '/bootstrap.php';
+            header('Location: ' . habitflow_url('public/login.php'));
             exit;
         }
     }
