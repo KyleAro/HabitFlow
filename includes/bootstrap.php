@@ -117,13 +117,14 @@ function habitflow_api(string $endpoint): string
     return habitflow_url('api/' . ltrim($endpoint, '/'));
 }
 
-/** Vercel rewrite paths for AI endpoints (no /api/ prefix). */
+/** Vercel rewrite paths for API endpoints (no /api/ prefix). */
 function habitflow_ai_endpoint(string $name): string
 {
     if (getenv('VERCEL')) {
         $routes = [
-            'ai-api'    => '/ai-api',
-            'qwen-chat' => '/qwen-chat',
+            'ai-api'        => '/ai-api',
+            'qwen-chat'     => '/qwen-chat',
+            'firebase-auth' => '/firebase-auth',
         ];
         return $routes[$name] ?? habitflow_api($name . '.php');
     }

@@ -139,10 +139,31 @@ class AuthHandler {
     }
 
     public static function logout() {
-        session_unset();
-        session_destroy();
         self::clearAuthCookie();
+        self::clearSessionCookie();
+
+        $_SESSION = [];
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
+
         return ['success' => true, 'message' => 'Logged out successfully'];
+    }
+
+    private static function clearSessionCookie(): void
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            return;
+        }
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', [
+            'expires'  => time() - 3600,
+            'path'     => $params['path'] ?: '/',
+            'domain'   => $params['domain'] ?? '',
+            'secure'   => $params['secure'],
+            'httponly' => $params['httponly'],
+            'samesite' => $params['samesite'] ?? 'Lax',
+        ]);
     }
 
     private static function cookieSecret(): string
@@ -174,14 +195,16 @@ class AuthHandler {
 
     private static function clearAuthCookie(): void
     {
-        $secure = !empty($_SERVER['HTTPS']) || (bool) getenv('VERCEL');
-        setcookie(self::COOKIE_NAME, '', [
-            'expires'  => time() - 3600,
+        $expired = time() - 3600;
+        $opts = [
+            'expires'  => $expired,
             'path'     => '/',
-            'secure'   => $secure,
             'httponly' => true,
             'samesite' => 'Lax',
-        ]);
+        ];
+        // Clear both secure and non-secure variants (dev vs Vercel)
+        setcookie(self::COOKIE_NAME, '', array_merge($opts, ['secure' => true]));
+        setcookie(self::COOKIE_NAME, '', array_merge($opts, ['secure' => false]));
         unset($_COOKIE[self::COOKIE_NAME]);
     }
 

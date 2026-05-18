@@ -42,7 +42,7 @@ $username = AuthHandler::getUsername();
                     <i class="ti ti-sun icon-sun"></i>
                     <i class="ti ti-moon icon-moon"></i>
                 </button>
-                <a href="logout.php" class="btn btn-outline">
+                <a href="<?php echo habitflow_page('logout'); ?>" id="logoutBtn" class="btn btn-outline">
                     <i class="ti ti-logout"></i>
                     Logout
                 </a>
@@ -312,6 +312,8 @@ $username = AuthHandler::getUsername();
     <script>
         window.HABITFLOW_API = '<?php echo habitflow_api(''); ?>';
         window.HABITFLOW_AI_API = '<?php echo habitflow_ai_endpoint('ai-api'); ?>';
+        window.HABITFLOW_AUTH_API = '<?php echo habitflow_ai_endpoint('firebase-auth'); ?>';
+        window.HABITFLOW_HOME = '<?php echo habitflow_page('index'); ?>';
     </script>
     <script type="module">
         const userId = <?php echo json_encode($userId); ?>;
@@ -355,6 +357,29 @@ $username = AuthHandler::getUsername();
                 throw new Error('AI server error — check Vercel logs or redeploy latest code.');
             }
         }
+
+        document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await waitForFirebase();
+                if (window.firebaseAuth) {
+                    await window.firebaseSignOut(window.firebaseAuth);
+                }
+            } catch (err) {
+                console.warn('Firebase signout:', err);
+            }
+            try {
+                await fetch(window.HABITFLOW_AUTH_API, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'logout' }),
+                });
+            } catch (err) {
+                console.warn('Session logout:', err);
+            }
+            window.location.replace(window.HABITFLOW_HOME);
+        });
 
         const aiFeedback = document.getElementById('aiFeedback');
         const alertBox = document.getElementById('alertBox');
