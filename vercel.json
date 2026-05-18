@@ -18,6 +18,7 @@
     { "src": "/firebase-auth", "dest": "/api/firebase-auth.php" },
     { "src": "/firebase-config", "dest": "/api/firebase-config.php" },
     { "src": "/qwen-chat", "dest": "/api/qwen-chat.php" },
+    { "src": "/ai-health", "dest": "/api/ai-health.php" },
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/(.*)", "dest": "/api/index.php" }
   ]

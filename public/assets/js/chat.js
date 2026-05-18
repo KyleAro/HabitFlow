@@ -200,6 +200,7 @@ class HabitCoachChat {
             const apiBase = window.HABITFLOW_API || '../api/';
             const response = await fetch(apiBase + 'qwen-chat.php', {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message, habits: habitNames })
             });

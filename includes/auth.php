@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/bootstrap.php';
+
 class AuthHandler {
 
     private const COOKIE_NAME = 'hf_auth';
@@ -11,6 +13,96 @@ class AuthHandler {
             return true;
         }
         return self::restoreFromCookie();
+    }
+
+    /** For API routes on Vercel: session, cookie, or Firebase Bearer token. */
+    public static function authenticateApiRequest(): bool
+    {
+        if (self::isLoggedIn()) {
+            return true;
+        }
+        return self::authenticateFromBearer();
+    }
+
+    private static function authenticateFromBearer(): bool
+    {
+        $header = $_SERVER['HTTP_AUTHORIZATION']
+            ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION']
+            ?? '';
+
+        if (!preg_match('/Bearer\s+(\S+)/i', $header, $matches)) {
+            return false;
+        }
+
+        $user = self::verifyFirebaseIdToken($matches[1]);
+        if (!$user) {
+            return false;
+        }
+
+        $_SESSION['user_id'] = $user['uid'];
+        $_SESSION['email'] = $user['email'];
+        $_SESSION['username'] = $user['displayName'] ?? explode('@', $user['email'])[0];
+        $_SESSION['logged_in'] = true;
+        $_SESSION['login_time'] = time();
+
+        return true;
+    }
+
+    private static function verifyFirebaseIdToken(string $idToken): ?array
+    {
+        $apiKey = habitflow_env('FIREBASE_API_KEY');
+        if ($apiKey === '') {
+            return null;
+        }
+
+        $url = 'https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=' . urlencode($apiKey);
+        $body = json_encode(['idToken' => $idToken]);
+
+        $response = self::httpPost($url, $body, ['Content-Type: application/json']);
+        if ($response === null) {
+            return null;
+        }
+
+        $data = json_decode($response, true);
+        if (!isset($data['users'][0])) {
+            return null;
+        }
+
+        $user = $data['users'][0];
+        return [
+            'uid'         => $user['localId'] ?? '',
+            'email'       => $user['email'] ?? '',
+            'displayName' => $user['displayName'] ?? null,
+        ];
+    }
+
+    private static function httpPost(string $url, string $body, array $headers): ?string
+    {
+        if (function_exists('curl_init')) {
+            $curl = curl_init($url);
+            curl_setopt_array($curl, [
+                CURLOPT_POST           => true,
+                CURLOPT_POSTFIELDS     => $body,
+                CURLOPT_HTTPHEADER     => $headers,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT        => 10,
+            ]);
+            $response = curl_exec($curl);
+            $code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            curl_close($curl);
+            return ($response !== false && $code === 200) ? $response : null;
+        }
+
+        $opts = [
+            'http' => [
+                'method'  => 'POST',
+                'header'  => implode("\r\n", $headers),
+                'content' => $body,
+                'timeout' => 10,
+            ],
+        ];
+        $response = @file_get_contents($url, false, stream_context_create($opts));
+        return $response !== false ? $response : null;
     }
 
     public static function getUserId() {
@@ -55,8 +147,8 @@ class AuthHandler {
 
     private static function cookieSecret(): string
     {
-        $secret = getenv('AUTH_COOKIE_SECRET');
-        return ($secret !== false && $secret !== '') ? $secret : 'habitflow-dev-secret-change-in-env';
+        $secret = habitflow_env('AUTH_COOKIE_SECRET');
+        return $secret !== '' ? $secret : 'habitflow-dev-secret-change-in-env';
     }
 
     private static function setAuthCookie(string $uid, string $email, string $username): void

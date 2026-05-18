@@ -1,20 +1,15 @@
 <?php
-session_start();
-require_once __DIR__ . '/../includes/bootstrap.php';
+require_once __DIR__ . '/init.php';
 habitflow_require('auth.php');
 
-header('Content-Type: application/json');
-
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'error' => 'Invalid request method']);
-    exit;
+    habitflow_json_response(['success' => false, 'error' => 'Invalid request method'], 405);
 }
 
 $input = json_decode(file_get_contents('php://input'), true);
 
 if (!$input) {
-    echo json_encode(['success' => false, 'error' => 'Invalid input data']);
-    exit;
+    habitflow_json_response(['success' => false, 'error' => 'Invalid input data'], 400);
 }
 
 $action = $input['action'] ?? '';
@@ -25,33 +20,29 @@ if ($action === 'login' || $action === 'register') {
     $username = $input['username'] ?? explode('@', $email)[0];
 
     if (empty($uid) || empty($email)) {
-        echo json_encode(['success' => false, 'error' => 'Missing user data']);
-        exit;
+        habitflow_json_response(['success' => false, 'error' => 'Missing user data'], 400);
     }
 
     AuthHandler::login($uid, $email, $username);
 
-    echo json_encode([
-        'success' => true,
-        'message' => 'Session created successfully',
-        'redirect' => habitflow_page('dashboard')
+    habitflow_json_response([
+        'success'  => true,
+        'message'  => 'Session created successfully',
+        'redirect' => habitflow_page('dashboard'),
     ]);
-    exit;
 }
 
 if ($action === 'logout') {
     AuthHandler::logout();
-    echo json_encode(['success' => true, 'message' => 'Logged out']);
-    exit;
+    habitflow_json_response(['success' => true, 'message' => 'Logged out']);
 }
 
 if ($action === 'check') {
-    echo json_encode([
-        'success' => true,
+    habitflow_json_response([
+        'success'   => true,
         'logged_in' => AuthHandler::isLoggedIn(),
-        'user_id' => AuthHandler::getUserId()
+        'user_id'   => AuthHandler::getUserId(),
     ]);
-    exit;
 }
 
-echo json_encode(['success' => false, 'error' => 'Unknown action']);
+habitflow_json_response(['success' => false, 'error' => 'Unknown action'], 400);

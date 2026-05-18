@@ -309,10 +309,52 @@ $username = AuthHandler::getUsername();
 
     <script type="module" src="<?php echo habitflow_api('firebase-config.php'); ?>"></script>
     <script type="module" src="<?php echo habitflow_asset('js/habits-db.js'); ?>"></script>
-    <script>window.HABITFLOW_API = '<?php echo habitflow_api(''); ?>';</script>
+    <script>
+        window.HABITFLOW_API = '<?php echo habitflow_api(''); ?>';
+        window.HABITFLOW_AI_API = '<?php echo habitflow_ai_endpoint('ai-api'); ?>';
+    </script>
     <script type="module">
         const userId = <?php echo json_encode($userId); ?>;
         const username = <?php echo json_encode($username); ?>;
+
+        async function getAuthHeaders() {
+            const headers = { 'Content-Type': 'application/json' };
+            try {
+                await waitForFirebase();
+                const user = window.firebaseAuth?.currentUser;
+                if (user) {
+                    headers['Authorization'] = 'Bearer ' + await user.getIdToken();
+                }
+            } catch (e) {
+                console.warn('Could not get Firebase token for API:', e);
+            }
+            return headers;
+        }
+
+        function waitForFirebase() {
+            return new Promise((resolve) => {
+                if (window.firebaseAuth) {
+                    resolve();
+                    return;
+                }
+                const interval = setInterval(() => {
+                    if (window.firebaseAuth) {
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, 50);
+            });
+        }
+
+        async function parseJsonResponse(response) {
+            const text = await response.text();
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.error('Server returned non-JSON:', text.substring(0, 300));
+                throw new Error('AI server error — check Vercel logs or redeploy latest code.');
+            }
+        }
 
         const aiFeedback = document.getElementById('aiFeedback');
         const alertBox = document.getElementById('alertBox');
@@ -409,16 +451,17 @@ $username = AuthHandler::getUsername();
         async function loadDailyBriefing(habits) {
             try {
                 const habitSummary = habitsToSimpleList(habits.slice(0, 5));
-                const response = await fetch(window.HABITFLOW_API + 'ai-api.php', {
+                const response = await fetch(window.HABITFLOW_AI_API, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    headers: await getAuthHeaders(),
                     body: JSON.stringify({
                         action: 'daily_briefing',
                         username: username,
                         habits: habitSummary
                     })
                 });
-                const data = await response.json();
+                const data = await parseJsonResponse(response);
                 if (data.success && data.message) {
                     briefingContainer.innerHTML = `
                         <div class="briefing-banner">
@@ -440,12 +483,13 @@ $username = AuthHandler::getUsername();
 
         async function getAIMessage(habitName, streak) {
             try {
-                const response = await fetch(window.HABITFLOW_API + 'ai-api.php', {
+                const response = await fetch(window.HABITFLOW_AI_API, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    headers: await getAuthHeaders(),
                     body: JSON.stringify({ action: 'motivation', habitName, currentStreak: streak })
                 });
-                const data = await response.json();
+                const data = await parseJsonResponse(response);
                 if (data.success && data.message) return data.message;
             } catch (error) {
                 console.warn('Qwen API error, using fallback:', error);
@@ -610,16 +654,17 @@ $username = AuthHandler::getUsername();
 
             try {
                 const existingHabits = cachedHabits.map(h => h.habitName);
-                const response = await fetch(window.HABITFLOW_API + 'ai-api.php', {
+                const response = await fetch(window.HABITFLOW_AI_API, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    headers: await getAuthHeaders(),
                     body: JSON.stringify({
                         action: 'generate_habit',
                         goal: goal,
                         existingHabits: existingHabits
                     })
                 });
-                const data = await response.json();
+                const data = await parseJsonResponse(response);
 
                 if (!data.success) {
                     aiGenerateResult.innerHTML = `<div class="alert alert-error"><i class="ti ti-alert-circle"></i>${escapeHtml(data.error || 'Failed to generate')}</div>`;
@@ -833,9 +878,10 @@ $username = AuthHandler::getUsername();
             addTypingIndicator();
 
             try {
-                const response = await fetch(window.HABITFLOW_API + 'ai-api.php', {
+                const response = await fetch(window.HABITFLOW_AI_API, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    headers: await getAuthHeaders(),
                     body: JSON.stringify({
                         action: 'chat',
                         message: message,
@@ -843,7 +889,7 @@ $username = AuthHandler::getUsername();
                         history: chatHistory
                     })
                 });
-                const data = await response.json();
+                const data = await parseJsonResponse(response);
 
                 removeTypingIndicator();
 
@@ -853,7 +899,7 @@ $username = AuthHandler::getUsername();
                     chatHistory.push({ role: 'assistant', content: data.reply });
                     if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
                 } else {
-                    addChatMessage("I'm having trouble responding. Try again in a moment!", 'ai');
+                    addChatMessage(data.error || "I'm having trouble responding. Try again in a moment!", 'ai');
                 }
             } catch (error) {
                 console.error('Chat error:', error);

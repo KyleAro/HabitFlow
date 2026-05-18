@@ -6,6 +6,22 @@ if (!defined('HABITFLOW_ROOT')) {
     define('HABITFLOW_ROOT', dirname(__DIR__));
 }
 
+/** Read env var (Vercel injects into $_ENV; local uses .env file). */
+function habitflow_env(string $key, string $default = ''): string
+{
+    $candidates = [
+        getenv($key),
+        $_ENV[$key] ?? null,
+        $_SERVER[$key] ?? null,
+    ];
+    foreach ($candidates as $value) {
+        if ($value !== false && $value !== null && $value !== '') {
+            return trim((string) $value);
+        }
+    }
+    return $default;
+}
+
 function habitflow_load_env(): void
 {
     static $loaded = false;
@@ -26,11 +42,12 @@ function habitflow_load_env(): void
             continue;
         }
         [$key, $value] = array_map('trim', explode('=', $line, 2));
-        if ($key === '' || getenv($key) !== false) {
+        if ($key === '' || habitflow_env($key) !== '') {
             continue;
         }
         putenv("{$key}={$value}");
         $_ENV[$key] = $value;
+        $_SERVER[$key] = $value;
     }
     $loaded = true;
 }
@@ -98,6 +115,19 @@ function habitflow_page(string $page): string
 function habitflow_api(string $endpoint): string
 {
     return habitflow_url('api/' . ltrim($endpoint, '/'));
+}
+
+/** Vercel rewrite paths for AI endpoints (no /api/ prefix). */
+function habitflow_ai_endpoint(string $name): string
+{
+    if (getenv('VERCEL')) {
+        $routes = [
+            'ai-api'    => '/ai-api',
+            'qwen-chat' => '/qwen-chat',
+        ];
+        return $routes[$name] ?? habitflow_api($name . '.php');
+    }
+    return habitflow_api($name . '.php');
 }
 
 function habitflow_require(string $file): void

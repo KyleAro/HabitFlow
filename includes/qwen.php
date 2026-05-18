@@ -9,6 +9,12 @@ class QwenHandler {
     private static $apiKey = null;
     private static $apiUrl = 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions';
     private static $model = 'qwen-plus';
+    private static $lastError = '';
+
+    public static function getLastError(): string
+    {
+        return self::$lastError;
+    }
 
     private static function getApiKey(): string
     {
@@ -18,9 +24,14 @@ class QwenHandler {
         return self::$apiKey;
     }
 
-    private static function hasValidKey() {
+    public static function isConfigured(): bool
+    {
         $key = self::getApiKey();
-        return $key !== '' && strpos($key, 'YOUR_') !== 0;
+        return $key !== '' && strpos($key, 'YOUR_') !== 0 && strpos($key, 'paste-your') !== 0;
+    }
+
+    private static function hasValidKey() {
+        return self::isConfigured();
     }
 
     public static function setApiKey($key) {
@@ -169,31 +180,56 @@ class QwenHandler {
     }
 
     private static function executeRequest($data) {
-        $curl = curl_init(self::$apiUrl);
+        self::$lastError = '';
+        $headers = [
+            'Authorization: Bearer ' . self::getApiKey(),
+            'Content-Type: application/json',
+        ];
+        $body = json_encode($data);
+        $response = null;
+        $httpCode = 0;
 
-        curl_setopt_array($curl, [
-            CURLOPT_HTTPHEADER => [
-                "Authorization: Bearer " . self::getApiKey(),
-                "Content-Type: application/json"
-            ],
-            CURLOPT_POSTFIELDS => json_encode($data),
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 15,
-            CURLOPT_SSL_VERIFYPEER => true
-        ]);
+        if (function_exists('curl_init')) {
+            $curl = curl_init(self::$apiUrl);
+            curl_setopt_array($curl, [
+                CURLOPT_HTTPHEADER     => $headers,
+                CURLOPT_POSTFIELDS     => $body,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT        => 15,
+                CURLOPT_SSL_VERIFYPEER => true,
+            ]);
+            $response = curl_exec($curl);
+            $httpCode = (int) curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($curl);
+            curl_close($curl);
 
-        $response = curl_exec($curl);
-        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($curl);
-        curl_close($curl);
-
-        if ($curlError) {
-            error_log("Qwen API cURL error: " . $curlError);
-            return null;
+            if ($curlError) {
+                self::$lastError = 'Network error: ' . $curlError;
+                error_log('Qwen API cURL error: ' . $curlError);
+                return null;
+            }
+        } else {
+            $opts = [
+                'http' => [
+                    'method'  => 'POST',
+                    'header'  => implode("\r\n", $headers),
+                    'content' => $body,
+                    'timeout' => 15,
+                ],
+            ];
+            $response = @file_get_contents(self::$apiUrl, false, stream_context_create($opts));
+            if (isset($http_response_header[0]) && preg_match('/\s(\d{3})\s/', $http_response_header[0], $m)) {
+                $httpCode = (int) $m[1];
+            }
+            if ($response === false) {
+                self::$lastError = 'Network error: could not reach AI service';
+                return null;
+            }
         }
 
         if ($httpCode !== 200) {
-            error_log("Qwen API error (HTTP $httpCode): " . $response);
+            self::$lastError = 'AI API HTTP ' . $httpCode;
+            error_log('Qwen API error (HTTP ' . $httpCode . '): ' . $response);
             return null;
         }
 
@@ -203,6 +239,7 @@ class QwenHandler {
             return trim($responseData['choices'][0]['message']['content']);
         }
 
+        self::$lastError = 'Unexpected AI response format';
         return null;
     }
 
@@ -234,4 +271,3 @@ class QwenHandler {
         ];
     }
 }
-?>
